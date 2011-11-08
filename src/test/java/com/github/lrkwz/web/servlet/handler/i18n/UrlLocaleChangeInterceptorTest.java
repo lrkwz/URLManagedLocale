@@ -56,7 +56,7 @@ public abstract class UrlLocaleChangeInterceptorTest {
 						interceptor.getLocaleChangeURL()) == 0);
 	}
 
-	private void doGet(final Locale locale, final String requestURI)
+	protected void doGet(final Locale locale, final String requestURI)
 			throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET",
 				requestURI);
@@ -66,15 +66,16 @@ public abstract class UrlLocaleChangeInterceptorTest {
 
 		assertTrue(RequestContextUtils.getLocale(request) + "!=" + locale,
 				RequestContextUtils.getLocale(request).equals(locale));
+		assertTrue("No redirects here!", response.getRedirectedUrl() == null);
 	}
 
-	private void doGet(MockHttpServletRequest request,
+	protected void doGet(MockHttpServletRequest request,
 			MockHttpServletResponse response) throws Exception {
 		request.setAttribute(DispatcherServlet.LOCALE_RESOLVER_ATTRIBUTE,
 				localeResolver);
 
 		interceptor.preHandle(request, response, null);
-		
+
 		interceptor.postHandle(request, response, null, new ModelAndView());
 	}
 }
