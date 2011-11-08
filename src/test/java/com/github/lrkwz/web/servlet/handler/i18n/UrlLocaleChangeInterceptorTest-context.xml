@@ -4,16 +4,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
 
-	<bean class="com.github.lrkwz.web.servlet.handler.i18n.UrlLocaleResolver"
-		id="localeResolver">
-		<property name="localeResolver">
-			<bean id="cookieLocaleResolver"
-				class="org.springframework.web.servlet.i18n.CookieLocaleResolver">
-				<property name="cookieName" value="locale" />
-				<property name="cookieMaxAge" value="31536000" />
-			</bean>
-		</property>
-	</bean>
+
 
 
 	<bean

@@ -18,7 +18,7 @@ import org.springframework.web.servlet.support.RequestContextUtils;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration()
-public class UrlLocaleChangeInterceptorTest {
+public abstract class UrlLocaleChangeInterceptorTest {
 
 	@Autowired
 	UrlLocaleChangeInterceptor interceptor;
@@ -75,7 +75,6 @@ public class UrlLocaleChangeInterceptorTest {
 
 		interceptor.preHandle(request, response, null);
 		
-		ModelAndView modelAndView = new ModelAndView();
-		interceptor.postHandle(request, response, null, modelAndView);
+		interceptor.postHandle(request, response, null, new ModelAndView());
 	}
 }
