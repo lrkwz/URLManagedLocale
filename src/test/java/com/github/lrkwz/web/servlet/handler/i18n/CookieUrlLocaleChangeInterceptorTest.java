@@ -7,6 +7,7 @@ import java.util.Locale;
 import javax.servlet.http.Cookie;
 
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ContextConfiguration;
@@ -16,13 +17,17 @@ import org.springframework.web.servlet.support.RequestContextUtils;
 public class CookieUrlLocaleChangeInterceptorTest extends
 		UrlLocaleChangeInterceptorTest {
 
+	@Autowired
+	UrlLocaleResolver localeResolver;
+
 	@Test
 	public void cookieBasedTest() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET",
 				"/somecontroller");
 
 		Locale locale = Locale.ITALY;
-		Cookie cookies = new Cookie("locale", locale.toString());
+		Cookie cookies = new Cookie(localeResolver.getCookieName(),
+				locale.toString());
 		request.setCookies(cookies);
 
 		doGet(request, new MockHttpServletResponse());

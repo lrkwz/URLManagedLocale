@@ -6,12 +6,12 @@
 
 	<bean class="com.github.lrkwz.web.servlet.handler.i18n.UrlLocaleResolver"
 		id="localeResolver">
-		<property name="localeResolver">
-			<bean id="cookieLocaleResolver"
-				class="org.springframework.web.servlet.i18n.SessionLocaleResolver">
-				<property name="defaultLocale" value="en_GB" />
-			</bean>
-		</property>
+<!-- 		<property name="localeResolver"> -->
+<!-- 			<bean id="cookieLocaleResolver" -->
+<!-- 				class="org.springframework.web.servlet.i18n.SessionLocaleResolver"> -->
+<!-- 				<property name="defaultLocale" value="en_GB" /> -->
+<!-- 			</bean> -->
+<!-- 		</property> -->
 	</bean>
 
 
