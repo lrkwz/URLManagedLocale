@@ -13,9 +13,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.support.RequestContextUtils;
-
-import com.github.lrkwz.web.servlet.handler.i18.UrlLocaleChangeInterceptor;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration()
@@ -48,24 +47,35 @@ public class UrlLocaleChangeInterceptorTest {
 		final Locale locale = Locale.ITALY;
 		final String requestURI = String.format("/somecontroller",
 				locale.toString());
-		doGet(locale, requestURI);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		doGet(new MockHttpServletRequest("GET", requestURI), response);
+
+		assertTrue(
+				"Should redirect",
+				response.getRedirectedUrl().compareTo(
+						interceptor.getLocaleChangeURL()) == 0);
 	}
 
- 	private void doGet(final Locale locale, final String requestURI)
+	private void doGet(final Locale locale, final String requestURI)
 			throws Exception {
-		MockHttpServletRequest request = new MockHttpServletRequest();
-
-		request.setRequestURI(requestURI);
-		request.setAttribute(DispatcherServlet.LOCALE_RESOLVER_ATTRIBUTE,
-				localeResolver);
-
+		MockHttpServletRequest request = new MockHttpServletRequest("GET",
+				requestURI);
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
-		interceptor.preHandle(request, response, null);
-
-		RequestContextUtils.getLocaleResolver(request);
+		doGet(request, response);
 
 		assertTrue(RequestContextUtils.getLocale(request) + "!=" + locale,
 				RequestContextUtils.getLocale(request).equals(locale));
+	}
+
+	private void doGet(MockHttpServletRequest request,
+			MockHttpServletResponse response) throws Exception {
+		request.setAttribute(DispatcherServlet.LOCALE_RESOLVER_ATTRIBUTE,
+				localeResolver);
+
+		interceptor.preHandle(request, response, null);
+		
+		ModelAndView modelAndView = new ModelAndView();
+		interceptor.postHandle(request, response, null, modelAndView);
 	}
 }
