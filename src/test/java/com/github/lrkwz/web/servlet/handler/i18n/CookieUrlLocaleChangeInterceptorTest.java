@@ -15,6 +15,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
 @RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration
 public class CookieUrlLocaleChangeInterceptorTest extends
 		UrlLocaleChangeInterceptorTest {
 

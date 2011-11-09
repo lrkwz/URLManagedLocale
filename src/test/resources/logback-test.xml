@@ -8,10 +8,10 @@
 		</encoder>
 	</appender>
 
-	<logger name="org.springframework" level="debug" />
-	<!-- <logger name="com.github" level="debug" /> -->
+	<logger name="org.springframework.test.context" level="debug" />
+	<logger name="com.github" level="debug" />
 
-	<root level="DEBUG">
+	<root level="INFO">
 		<appender-ref ref="STDOUT" />
 	</root>
 
