@@ -23,6 +23,7 @@ public class UrlLocaleResolver implements LocaleResolver {
 				.getAttribute(LOCALE_REQUEST_ATTRIBUTE_NAME);
 		if (locale == null) {
 			locale = localeResolver.resolveLocale(request);
+			request.setAttribute(LOCALE_REQUEST_ATTRIBUTE_NAME, locale);
 		}
 		return locale;
 	}
@@ -38,6 +39,7 @@ public class UrlLocaleResolver implements LocaleResolver {
 
 		@Override
 		protected Locale determineDefaultLocale(HttpServletRequest request) {
+			logger.info("No default locale for this resolver");
 			return null;
 		}
 	}

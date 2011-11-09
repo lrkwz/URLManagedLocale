@@ -50,12 +50,14 @@ public class UrlLocaleChangeInterceptor extends HandlerInterceptorAdapter {
 	public boolean preHandle(HttpServletRequest request,
 			HttpServletResponse response, Object handler) throws Exception {
 
+		LocaleResolver localeResolver = RequestContextUtils
+				.getLocaleResolver(request);
+
+		// Locale explicitelly expressend in the url has precedence
 		Matcher matcher = matchLocalePattern(request);
 		if (matcher != null) {
 			final String locale = matcher.group(1);
 			if (locale != null) {
-				LocaleResolver localeResolver = RequestContextUtils
-						.getLocaleResolver(request);
 				if (localeResolver == null) {
 					throw new IllegalStateException(
 							"No LocaleResolver found: not in a DispatcherServlet request?");
@@ -73,8 +75,9 @@ public class UrlLocaleChangeInterceptor extends HandlerInterceptorAdapter {
 			HttpServletResponse response, Object handler,
 			ModelAndView modelAndView) throws Exception {
 
-		final Matcher matcher = matchLocalePattern(request);
-		if (matcher == null) {
+		// final Matcher matcher = matchLocalePattern(request);
+		if (RequestContextUtils.getLocaleResolver(request).resolveLocale(
+				request) == null) {
 			doRedirect(response, localeChangeURL, modelAndView);
 		}
 	}

@@ -12,6 +12,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -19,19 +20,25 @@ import org.springframework.web.servlet.support.RequestContextUtils;
 public class CookieUrlLocaleChangeInterceptorTest extends
 		UrlLocaleChangeInterceptorTest {
 
+	/*
+	 * Simulates a call with pre-selected locale based on cookie
+	 */
 	@Test
 	public void cookieBasedTest() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET",
 				"/somecontroller");
 
-		Locale locale = Locale.ITALY;
+		final Locale locale = Locale.CANADA_FRENCH;
 		Cookie cookies = new Cookie(localeResolver.getCookieName(),
 				locale.toString());
 		request.setCookies(cookies);
 
-		doGet(request, new MockHttpServletResponse());
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		doGet(request, response);
 
 		assertTrue(RequestContextUtils.getLocale(request) + "!=" + locale,
 				RequestContextUtils.getLocale(request).equals(locale));
+		assertTrue("This should be null: " + response.getRedirectedUrl(),
+				response.getRedirectedUrl() == null);
 	}
 }

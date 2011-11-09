@@ -46,9 +46,7 @@ public abstract class UrlLocaleChangeInterceptorTest {
 
 	@Test
 	public void testUnlocalizedUrl() throws Exception {
-		final Locale locale = Locale.ITALY;
-		final String requestURI = String.format("/somecontroller",
-				locale.toString());
+		final String requestURI = "/somecontroller";
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		doGet(new MockHttpServletRequest("GET", requestURI), response);
 
