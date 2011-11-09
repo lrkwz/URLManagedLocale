@@ -4,27 +4,29 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Locale;
 
+import javax.annotation.Resource;
+
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.servlet.DispatcherServlet;
-import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration()
+@ContextConfiguration
 public abstract class UrlLocaleChangeInterceptorTest {
+	Logger logger = LoggerFactory
+			.getLogger(UrlLocaleChangeInterceptorTest.class);
 
-	@Autowired
+	@Resource
 	UrlLocaleChangeInterceptor interceptor;
 
-	@Autowired
-	LocaleResolver localeResolver;
+	@Resource
+	UrlLocaleResolver localeResolver;
 
 	@Test
 	public void testLocalizedUrl() throws Exception {
@@ -71,6 +73,7 @@ public abstract class UrlLocaleChangeInterceptorTest {
 
 	protected void doGet(MockHttpServletRequest request,
 			MockHttpServletResponse response) throws Exception {
+		logger.debug("Processing request {}", request.getRequestURI());
 		request.setAttribute(DispatcherServlet.LOCALE_RESOLVER_ATTRIBUTE,
 				localeResolver);
 

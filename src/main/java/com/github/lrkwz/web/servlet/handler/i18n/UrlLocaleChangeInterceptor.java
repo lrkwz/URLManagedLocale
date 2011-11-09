@@ -7,10 +7,6 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import junit.framework.Assert;
-
-import static junit.framework.Assert.assertTrue;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.LocaleResolver;
@@ -84,8 +80,10 @@ public class UrlLocaleChangeInterceptor extends HandlerInterceptorAdapter {
 	}
 
 	public void setLocalePattern(final String localePattern) {
-		Assert.assertTrue("Your pattern needs to define a match group",
-				localePattern.matches(".*\\(.*\\).*"));
+		if (localePattern.matches(".*\\(.*\\).*") == false) {
+			throw new IllegalArgumentException(
+					"Your pattern needs to define a match group");
+		}
 		this.localePattern = Pattern.compile(localePattern);
 	}
 

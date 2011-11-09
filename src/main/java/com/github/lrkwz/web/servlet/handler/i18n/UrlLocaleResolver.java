@@ -42,11 +42,51 @@ public class UrlLocaleResolver implements LocaleResolver {
 		}
 	}
 
+	/**
+	 * @param cookieDomain
+	 * @see org.springframework.web.util.CookieGenerator#setCookieName(java.lang.String)
+	 */
 	public void setCookieName(String cookieName) {
 		localeResolver.setCookieName(cookieName);
 	}
 
+	/**
+	 * @param cookieDomain
+	 * @see org.springframework.web.util.CookieGenerator#getCookieName()
+	 */
 	public String getCookieName() {
 		return localeResolver.getCookieName();
+	}
+
+	/**
+	 * @param cookieDomain
+	 * @see org.springframework.web.util.CookieGenerator#setCookieDomain(java.lang.String)
+	 */
+	public void setCookieDomain(String cookieDomain) {
+		localeResolver.setCookieDomain(cookieDomain);
+	}
+
+	/**
+	 * @param cookiePath
+	 * @see org.springframework.web.util.CookieGenerator#setCookiePath(java.lang.String)
+	 */
+	public void setCookiePath(String cookiePath) {
+		localeResolver.setCookiePath(cookiePath);
+	}
+
+	/**
+	 * @param cookieMaxAge
+	 * @see org.springframework.web.util.CookieGenerator#setCookieMaxAge(java.lang.Integer)
+	 */
+	public void setCookieMaxAge(Integer cookieMaxAge) {
+		localeResolver.setCookieMaxAge(cookieMaxAge);
+	}
+
+	/**
+	 * @param cookieSecure
+	 * @see org.springframework.web.util.CookieGenerator#setCookieSecure(boolean)
+	 */
+	public void setCookieSecure(boolean cookieSecure) {
+		localeResolver.setCookieSecure(cookieSecure);
 	}
 }

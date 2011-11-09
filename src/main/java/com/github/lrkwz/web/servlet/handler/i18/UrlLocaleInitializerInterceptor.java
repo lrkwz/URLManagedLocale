@@ -1,9 +1,5 @@
 package com.github.lrkwz.web.servlet.handler.i18;
 
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.util.Collections;
-import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,17 +7,16 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
-import org.springframework.web.servlet.support.RequestContextUtils;
 
 public class UrlLocaleInitializerInterceptor extends HandlerInterceptorAdapter {
 
-	private static final Log log = LogFactory
-			.getLog(UrlLocaleInitializerInterceptor.class);
+	private static final Logger log = LoggerFactory
+			.getLogger(UrlLocaleInitializerInterceptor.class);
 
 	private String localeChangeUrl;
 
@@ -45,44 +40,32 @@ public class UrlLocaleInitializerInterceptor extends HandlerInterceptorAdapter {
 		}
 
 		/*
-		// scatena il meccanismo per il recupero del locale
-		// DEVE essere chiamato perche' il check seguente possa funzionare
-		final Locale locale = RequestContextUtils.getLocale(request);
-
-		if (log.isDebugEnabled()) {
-			final String paramNames = StringUtils
-					.collectionToCommaDelimitedString(Collections.list(request
-							.getParameterNames()));
-			log.debug("request.getPathInfo() is: "
-					+ request.getPathInfo()
-					+ " referer is: "
-					+ request.getHeader("referer")
-					+ (StringUtils.hasText(paramNames) ? " request parameters are: "
-							+ paramNames
-							: ""));
-		}
-
-		// recupero la pagina di destinazione
-		String destination = getDestinationPage(request);
-
-		try {
-			// valorizzo il parametro di destinazione
-			StringBuffer sb = new StringBuffer(128)
-					.append(request.getContextPath())
-					.append(getLocaleChangeUrl()).append("?").append("dest=")
-					.append(URLEncoder.encode(destination, "UTF-8"));
-
-			String redirect = sb.toString();
-			log.debug("REDIRECT=" + redirect);
-
-			// altrimenti redirigo alla pagina di scelta del locale
-			response.setStatus(HttpServletResponse.SC_MULTIPLE_CHOICES);
-			response.sendRedirect(redirect);
-		} catch (IOException e) {
-			log.debug("Exception handling", e);
-			throw new ServletException(e);
-		}
-		*/
+		 * // scatena il meccanismo per il recupero del locale // DEVE essere
+		 * chiamato perche' il check seguente possa funzionare final Locale
+		 * locale = RequestContextUtils.getLocale(request);
+		 * 
+		 * if (log.isDebugEnabled()) { final String paramNames = StringUtils
+		 * .collectionToCommaDelimitedString(Collections.list(request
+		 * .getParameterNames())); log.debug("request.getPathInfo() is: " +
+		 * request.getPathInfo() + " referer is: " +
+		 * request.getHeader("referer") + (StringUtils.hasText(paramNames) ?
+		 * " request parameters are: " + paramNames : "")); }
+		 * 
+		 * // recupero la pagina di destinazione String destination =
+		 * getDestinationPage(request);
+		 * 
+		 * try { // valorizzo il parametro di destinazione StringBuffer sb = new
+		 * StringBuffer(128) .append(request.getContextPath())
+		 * .append(getLocaleChangeUrl()).append("?").append("dest=")
+		 * .append(URLEncoder.encode(destination, "UTF-8"));
+		 * 
+		 * String redirect = sb.toString(); log.debug("REDIRECT=" + redirect);
+		 * 
+		 * // altrimenti redirigo alla pagina di scelta del locale
+		 * response.setStatus(HttpServletResponse.SC_MULTIPLE_CHOICES);
+		 * response.sendRedirect(redirect); } catch (IOException e) {
+		 * log.debug("Exception handling", e); throw new ServletException(e); }
+		 */
 
 		log.debug("Current locale is " + LocaleContextHolder.getLocale());
 
