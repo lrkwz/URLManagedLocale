@@ -5,24 +5,20 @@ import static org.junit.Assert.assertTrue;
 import java.util.Locale;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpSession;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
 @ContextConfiguration
 public abstract class Base {
-	Logger logger = LoggerFactory
-			.getLogger(Base.class);
+	Logger logger = LoggerFactory.getLogger(Base.class);
 
 	@Resource
 	UrlLocaleChangeInterceptor interceptor;
@@ -30,21 +26,26 @@ public abstract class Base {
 	@Resource
 	UrlLocaleResolver localeResolver;
 
-
-	protected void doGet(final Locale locale, final String requestURI)
-			throws Exception {
+	protected void processInterceptor(final Locale locale,
+			final String requestURI, HttpSession session) throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET",
 				requestURI);
+		if (session != null) {
+			request.setSession(session);
+		}
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
-		doGet(request, response);
+		processInterceptor(request, response);
 
-		assertTrue(RequestContextUtils.getLocale(request) + "!=" + locale,
-				RequestContextUtils.getLocale(request).equals(locale));
+		Locale newlocale = RequestContextUtils.getLocaleResolver(request).resolveLocale(request);
+		assertTrue("Locale should not be null",
+				newlocale != null);
+		assertTrue(newlocale + "!=" + locale,
+				newlocale.equals(locale));
 		assertTrue("No redirects here!", response.getRedirectedUrl() == null);
 	}
 
-	protected void doGet(MockHttpServletRequest request,
+	protected void processInterceptor(MockHttpServletRequest request,
 			MockHttpServletResponse response) throws Exception {
 		logger.debug("Processing request {}", request.getRequestURI());
 		request.setAttribute(DispatcherServlet.LOCALE_RESOLVER_ATTRIBUTE,

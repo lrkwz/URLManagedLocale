@@ -34,7 +34,7 @@ public class CookieUrlLocaleChangeInterceptorTest extends
 		request.setCookies(cookies);
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		doGet(request, response);
+		processInterceptor(request, response);
 
 		assertTrue(RequestContextUtils.getLocale(request) + "!=" + locale,
 				RequestContextUtils.getLocale(request).equals(locale));
