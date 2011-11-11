@@ -6,9 +6,12 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.security.web.PortResolver;
+import org.springframework.security.web.PortResolverImpl;
+import org.springframework.security.web.savedrequest.DefaultSavedRequest;
+import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
 
-import com.github.lrkwz.web.PortResolver;
-import com.github.lrkwz.web.PortResolverImpl;
 import com.github.lrkwz.web.WebAttributes;
 
 /**

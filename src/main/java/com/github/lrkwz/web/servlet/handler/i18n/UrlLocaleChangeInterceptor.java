@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.LocaleResolver;
@@ -22,7 +23,6 @@ import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.servlet.view.RedirectView;
 
 import com.github.lrkwz.web.savedrequest.HttpSessionRequestCache;
-import com.github.lrkwz.web.savedrequest.RequestCache;
 
 /**
  * Interceptor that allows for changing the current locale on every request, via
