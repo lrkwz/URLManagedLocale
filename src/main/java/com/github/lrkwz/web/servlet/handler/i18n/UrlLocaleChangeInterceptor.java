@@ -11,14 +11,18 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import org.springframework.web.servlet.support.RequestContextUtils;
 import org.springframework.web.servlet.view.RedirectView;
+
+import com.github.lrkwz.web.savedrequest.HttpSessionRequestCache;
+import com.github.lrkwz.web.savedrequest.RequestCache;
 
 /**
  * Interceptor that allows for changing the current locale on every request, via
@@ -30,7 +34,8 @@ import org.springframework.web.servlet.view.RedirectView;
  * @author lrkwz
  * 
  */
-public class UrlLocaleChangeInterceptor extends HandlerInterceptorAdapter {
+public class UrlLocaleChangeInterceptor extends HandlerInterceptorAdapter
+		implements InitializingBean {
 
 	Logger logger = LoggerFactory.getLogger(UrlLocaleChangeInterceptor.class);
 
@@ -39,6 +44,8 @@ public class UrlLocaleChangeInterceptor extends HandlerInterceptorAdapter {
 													// \b([a-z]{2})\b
 
 	private Pattern localePattern = DEFAULT_LOCALE_URL_PATTERN;
+
+	private RequestCache requestCache = new HttpSessionRequestCache();
 
 	private static final String DEFAULT_LOCALE_CHANGEURL = "/chooseLocale.html";
 	private URI localeChangeURI;
@@ -108,6 +115,7 @@ public class UrlLocaleChangeInterceptor extends HandlerInterceptorAdapter {
 			// final Matcher matcher = matchLocalePattern(request);
 			if (RequestContextUtils.getLocaleResolver(request).resolveLocale(
 					request) == null) {
+				requestCache.saveRequest(request, response);
 				if (localeChangeURI.getHost() == null) {
 					if (!localeChangeURI.getPath().startsWith(
 							request.getContextPath())) {
@@ -125,10 +133,8 @@ public class UrlLocaleChangeInterceptor extends HandlerInterceptorAdapter {
 	}
 
 	public void setLocalePattern(final String localePattern) {
-		if (localePattern.matches(".*\\(.*\\).*") == false) {
-			throw new IllegalArgumentException(
-					"Your pattern needs to define a match group");
-		}
+		Assert.isTrue(localePattern.matches(".*\\(.*\\).*"),
+				"Pattern MUST contain a group expression");
 		this.localePattern = Pattern.compile(localePattern);
 	}
 
@@ -161,5 +167,15 @@ public class UrlLocaleChangeInterceptor extends HandlerInterceptorAdapter {
 			throw new IllegalArgumentException(localeChangeURI
 					+ " must be a valid URI: " + e, e);
 		}
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		Assert.notNull(localePattern);
+		Assert.hasText(localePattern.toString());
+		Assert.isTrue(localePattern.toString().matches(".*\\(.*\\).*"),
+				"Pattern MUST contain a group expression");
+
+		// TODO check if controlling localeChangeURI is necessary or not
 	}
 }
