@@ -9,10 +9,10 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.security.web.PortResolver;
 import org.springframework.security.web.PortResolverImpl;
 import org.springframework.security.web.savedrequest.DefaultSavedRequest;
-import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 
 import com.github.lrkwz.web.WebAttributes;
+
 
 /**
  * <tt>RequestCache</tt> which stores the <tt>SavedRequest</tt> in the
@@ -23,7 +23,7 @@ import com.github.lrkwz.web.WebAttributes;
  * @author Luke Taylor
  * @since 3.0
  */
-public class HttpSessionRequestCache implements RequestCache {
+public class HttpSessionRequestCache extends org.springframework.security.web.savedrequest.HttpSessionRequestCache {
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
 	private PortResolver portResolver = new PortResolverImpl();
@@ -34,6 +34,7 @@ public class HttpSessionRequestCache implements RequestCache {
 	 * Stores the current request, provided the configuration properties allow
 	 * it.
 	 */
+	@Override
 	public void saveRequest(HttpServletRequest request,
 			HttpServletResponse response) {
 		if (!justUseSavedRequestOnGet || "GET".equals(request.getMethod())) {
@@ -53,6 +54,7 @@ public class HttpSessionRequestCache implements RequestCache {
 
 	}
 
+	@Override
 	public SavedRequest getRequest(HttpServletRequest currentRequest,
 			HttpServletResponse response) {
 		HttpSession session = currentRequest.getSession(false);
@@ -65,6 +67,7 @@ public class HttpSessionRequestCache implements RequestCache {
 		return null;
 	}
 
+	@Override
 	public void removeRequest(HttpServletRequest currentRequest,
 			HttpServletResponse response) {
 		HttpSession session = currentRequest.getSession(false);
@@ -73,25 +76,6 @@ public class HttpSessionRequestCache implements RequestCache {
 			logger.debug("Removing DefaultSavedRequest from session if present");
 			session.removeAttribute(WebAttributes.SAVED_REQUEST);
 		}
-	}
-
-	public HttpServletRequest getMatchingRequest(HttpServletRequest request,
-			HttpServletResponse response) {
-		DefaultSavedRequest saved = (DefaultSavedRequest) getRequest(request,
-				response);
-
-		if (saved == null) {
-			return null;
-		}
-
-		if (!saved.doesRequestMatch(request, portResolver)) {
-			logger.debug("saved request doesn't match");
-			return null;
-		}
-
-		removeRequest(request, response);
-
-		return new SavedRequestAwareWrapper(saved, request);
 	}
 
 	/**

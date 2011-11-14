@@ -2,6 +2,7 @@ package com.github.lrkwz.web.servlet.handler.i18n;
 
 import java.util.Locale;
 
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -10,14 +11,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.i18n.CookieLocaleResolver;
 
+import com.github.lrkwz.web.WebAttributes;
+
 public class UrlLocaleResolver implements LocaleResolver {
 	Logger logger = LoggerFactory.getLogger(UrlLocaleResolver.class);
 
-	private static final String LOCALE_REQUEST_ATTRIBUTE_NAME = "URL_LOCALE_RESOLVED";
-
 	InternalCookieLocaleResolver localeResolver;
-
-	private static final String USING_JVM_LOCALE = "using jvm locale";
 
 	public UrlLocaleResolver() {
 		localeResolver = new InternalCookieLocaleResolver();
@@ -25,20 +24,33 @@ public class UrlLocaleResolver implements LocaleResolver {
 
 	public Locale resolveLocale(HttpServletRequest request) {
 		Locale locale = (Locale) request
-				.getAttribute(LOCALE_REQUEST_ATTRIBUTE_NAME);
+				.getAttribute(WebAttributes.LOCALE_REQUEST_ATTRIBUTE_NAME);
 		if (locale == null) {
 			locale = localeResolver.resolveLocale(request);
-			request.setAttribute(LOCALE_REQUEST_ATTRIBUTE_NAME, locale);
+			request.setAttribute(WebAttributes.LOCALE_REQUEST_ATTRIBUTE_NAME,
+					locale);
 		}
-		logger.debug("New locale is {}", locale!=null?locale.toString():"null");
+		logger.debug("New locale is {}", locale != null ? locale.toString()
+				: "null");
 		return locale;
+	}
+
+	public static boolean isJVMLocale(ServletRequest request) {
+		if (request.getAttribute(WebAttributes.USING_JVM_LOCALE) == null) {
+			return true;
+		} else {
+			return Boolean.parseBoolean((String) request
+					.getAttribute(WebAttributes.USING_JVM_LOCALE));
+		}
 	}
 
 	public void setLocale(HttpServletRequest request,
 			HttpServletResponse response, Locale locale) {
 		localeResolver.setLocale(request, response, locale);
 
-		request.setAttribute(LOCALE_REQUEST_ATTRIBUTE_NAME, locale);
+		request.setAttribute(WebAttributes.LOCALE_REQUEST_ATTRIBUTE_NAME,
+				locale);
+		request.setAttribute(WebAttributes.USING_JVM_LOCALE, "false");
 	}
 
 	class InternalCookieLocaleResolver extends CookieLocaleResolver {
@@ -46,7 +58,7 @@ public class UrlLocaleResolver implements LocaleResolver {
 		@Override
 		protected Locale determineDefaultLocale(HttpServletRequest request) {
 			logger.info("No default locale for this resolver");
-			request.getSession().setAttribute(UrlLocaleResolver.USING_JVM_LOCALE, true);
+			request.setAttribute(WebAttributes.USING_JVM_LOCALE, "true");
 			return super.determineDefaultLocale(request);
 		}
 	}

@@ -1,6 +1,5 @@
 package com.github.lrkwz.web.servlet.handler.i18n;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.regex.Matcher;
@@ -12,16 +11,18 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.http.HttpStatus;
+import org.springframework.security.web.DefaultRedirectStrategy;
+import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import org.springframework.web.servlet.support.RequestContextUtils;
-import org.springframework.web.servlet.view.RedirectView;
 
+import com.github.lrkwz.web.WebAttributes;
 import com.github.lrkwz.web.savedrequest.HttpSessionRequestCache;
 
 /**
@@ -46,6 +47,7 @@ public class UrlLocaleChangeInterceptor extends HandlerInterceptorAdapter
 	private Pattern localePattern = DEFAULT_LOCALE_URL_PATTERN;
 
 	private RequestCache requestCache = new HttpSessionRequestCache();
+	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
 	private static final String DEFAULT_LOCALE_CHANGEURL = "/chooseLocale.html";
 	private URI localeChangeURI;
@@ -53,7 +55,7 @@ public class UrlLocaleChangeInterceptor extends HandlerInterceptorAdapter
 	public static String LOCALE_BACKURL = "locale_backurl";
 
 	public UrlLocaleChangeInterceptor() {
-		setLocaleChangeURL(DEFAULT_LOCALE_CHANGEURL);
+		setLocaleChangeURI(DEFAULT_LOCALE_CHANGEURL);
 	}
 
 	private Matcher matchLocalePattern(HttpServletRequest request) {
@@ -75,17 +77,18 @@ public class UrlLocaleChangeInterceptor extends HandlerInterceptorAdapter
 	public boolean preHandle(HttpServletRequest request,
 			HttpServletResponse response, Object handler) throws Exception {
 
-		logger.debug(">>>>> requesting {}, redirect is {}",
-				request.getRequestURI(), localeChangeURI.getPath());
-		if (request.getRequestURI().startsWith(localeChangeURI.getPath())) {
+		if (request.getServletPath().startsWith(localeChangeURI.getPath())) {
 			logger.debug("This is the change locale page request: no handler processing");
 			return true;
 		}
 
+		logger.debug(">>>>> requesting {}, redirect is {}",
+				request.getServletPath(), localeChangeURI.getPath());
+
 		LocaleResolver localeResolver = RequestContextUtils
 				.getLocaleResolver(request);
 
-		// Locale explicitelly expressend in the url has precedence
+		// Locale explicitly expressed in the URL has precedence
 		Matcher matcher = matchLocalePattern(request);
 		if (matcher != null) {
 			final String locale = matcher.group(1);
@@ -100,6 +103,27 @@ public class UrlLocaleChangeInterceptor extends HandlerInterceptorAdapter
 		} else {
 			logger.debug("Locale has not been changed");
 		}
+
+		SavedRequest savedRequest = requestCache.getRequest(request, response);
+		if (savedRequest != null) {
+			requestCache.removeRequest(request, response);
+
+			// Use the DefaultSavedRequest URL
+			String targetUrl = savedRequest.getRedirectUrl(); // TODO verificare
+																// se
+																// è necessario
+			logger.debug("Redirecting to DefaultSavedRequest Url: " + targetUrl);
+			getRedirectStrategy().sendRedirect(request, response, targetUrl);
+		}
+
+		boolean mustRedirect = UrlLocaleResolver.isJVMLocale(request);
+		if (mustRedirect) {
+			requestCache.saveRequest(request, response);
+			getRedirectStrategy().sendRedirect(request, response,
+					getLocaleChangeURI());
+		}
+		
+
 		// Proceed in any case.
 		return true;
 	}
@@ -109,27 +133,10 @@ public class UrlLocaleChangeInterceptor extends HandlerInterceptorAdapter
 			HttpServletResponse response, Object handler,
 			ModelAndView modelAndView) throws Exception {
 
-		if (request.getRequestURI().startsWith(localeChangeURI.getPath())) {
-			logger.debug("This is the change locale page request: no post-handler processing");
-		} else {
-			// final Matcher matcher = matchLocalePattern(request);
-			if (RequestContextUtils.getLocaleResolver(request).resolveLocale(
-					request) == null) {
-				requestCache.saveRequest(request, response);
-				if (localeChangeURI.getHost() == null) {
-					if (!localeChangeURI.getPath().startsWith(
-							request.getContextPath())) {
-						setLocaleChangeURL(request.getContextPath()
-								+ localeChangeURI.getPath());
-					}
-				}
-				doRedirect(response, localeChangeURI, modelAndView);
-			}
-		}
-	}
-
-	private void doForward(HttpServletResponse response, String localeChangeURL2) {
-
+		// if (request.getRequestURI().startsWith(localeChangeURI.getPath())) {
+		// logger.debug("This is the change locale page request: no post-handler processing");
+		// } else {
+		// }
 	}
 
 	public void setLocalePattern(final String localePattern) {
@@ -138,30 +145,13 @@ public class UrlLocaleChangeInterceptor extends HandlerInterceptorAdapter
 		this.localePattern = Pattern.compile(localePattern);
 	}
 
-	private void setBackURL(HttpServletRequest request) {
-		request.setAttribute(LOCALE_BACKURL, request.getRequestURI());
-	}
-
-	private void doRedirect(HttpServletResponse response, URI targetUrl,
-			ModelAndView modelAndView) throws IOException {
-
-		if (modelAndView != null) {
-			RedirectView rView = new RedirectView(targetUrl.toString(), true);
-			rView.setStatusCode(HttpStatus.MOVED_PERMANENTLY);
-			rView.setHttp10Compatible(false);
-			rView.setExposeModelAttributes(false);
-			modelAndView.setView(rView);
-		}
-		response.sendRedirect(targetUrl.toString());
-	}
-
-	public String getLocaleChangeURL() {
+	public String getLocaleChangeURI() {
 		return localeChangeURI.toString();
 	}
 
-	public void setLocaleChangeURL(String localeChangeURI) {
+	public void setLocaleChangeURI(String localeChangeURI) {
 		try {
-			logger.debug("REdirect uri is {}", localeChangeURI);
+			logger.debug("Redirect uri is {}", localeChangeURI);
 			this.localeChangeURI = new URI(localeChangeURI);
 		} catch (URISyntaxException e) {
 			throw new IllegalArgumentException(localeChangeURI
@@ -178,4 +168,16 @@ public class UrlLocaleChangeInterceptor extends HandlerInterceptorAdapter
 
 		// TODO check if controlling localeChangeURI is necessary or not
 	}
+
+	/**
+	 * Allows overriding of the behavior when redirecting to a target URL.
+	 */
+	public void setRedirectStrategy(RedirectStrategy redirectStrategy) {
+		this.redirectStrategy = redirectStrategy;
+	}
+
+	protected RedirectStrategy getRedirectStrategy() {
+		return redirectStrategy;
+	}
+
 }
