@@ -24,10 +24,11 @@ public class UrlLocaleResolver implements LocaleResolver {
 
 	public Locale resolveLocale(HttpServletRequest request) {
 		Locale locale = (Locale) request
-				.getAttribute(WebAttributes.LOCALE_REQUEST_ATTRIBUTE_NAME);
+				.getAttribute(WebAttributes.LOCALE_URL_ATTRIBUTE_NAME);
 		if (locale == null) {
+			request.setAttribute(WebAttributes.USING_JVM_LOCALE, "false"); //NB This MUST be placed _before_ the cookie.resolveLocale
 			locale = localeResolver.resolveLocale(request);
-			request.setAttribute(WebAttributes.LOCALE_REQUEST_ATTRIBUTE_NAME,
+			request.setAttribute(WebAttributes.LOCALE_URL_ATTRIBUTE_NAME,
 					locale);
 		}
 		logger.debug("New locale is {}", locale != null ? locale.toString()
@@ -48,9 +49,10 @@ public class UrlLocaleResolver implements LocaleResolver {
 			HttpServletResponse response, Locale locale) {
 		localeResolver.setLocale(request, response, locale);
 
-		request.setAttribute(WebAttributes.LOCALE_REQUEST_ATTRIBUTE_NAME,
+		request.setAttribute(WebAttributes.LOCALE_URL_ATTRIBUTE_NAME,
 				locale);
 		request.setAttribute(WebAttributes.USING_JVM_LOCALE, "false");
+		logger.debug("Locale has been explicitely set to  {}", locale);
 	}
 
 	class InternalCookieLocaleResolver extends CookieLocaleResolver {

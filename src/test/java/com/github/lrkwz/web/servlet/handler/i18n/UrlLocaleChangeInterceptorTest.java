@@ -59,10 +59,11 @@ public class UrlLocaleChangeInterceptorTest extends Base {
 		assertTrue(
 				"Should redirect",
 				response.getRedirectedUrl().compareTo(
-						interceptor.getLocaleChangeURL()) == 0);
+						interceptor.getLocaleChangeURI()) == 0);
 		return response;
 	}
 
+	/*
 	String callChooseLocaleController(HttpSession session,
 			String chooseLocaleURI, String locale) throws IOException {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET",
@@ -80,7 +81,6 @@ public class UrlLocaleChangeInterceptorTest extends Base {
 	@Resource
 	ChangeLocaleController controller;
 
-	/*
 	@Test
 	public void testRedirectAndBack() throws Exception {
 		MockHttpSession session = new MockHttpSession();

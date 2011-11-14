@@ -27,9 +27,10 @@ public abstract class Base {
 	UrlLocaleResolver localeResolver;
 
 	protected void processInterceptor(final Locale locale,
-			final String requestURI, HttpSession session) throws Exception {
-		MockHttpServletRequest request = new MockHttpServletRequest("GET",
-				requestURI);
+			final String servletPath, HttpSession session) throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setContextPath("/appcontext");
+		request.setServletPath(servletPath);
 		if (session != null) {
 			request.setSession(session);
 		}
@@ -37,11 +38,10 @@ public abstract class Base {
 
 		processInterceptor(request, response);
 
-		Locale newlocale = RequestContextUtils.getLocaleResolver(request).resolveLocale(request);
-		assertTrue("Locale should not be null",
-				newlocale != null);
-		assertTrue(newlocale + "!=" + locale,
-				newlocale.equals(locale));
+		Locale newlocale = RequestContextUtils.getLocaleResolver(request)
+				.resolveLocale(request);
+		assertTrue("Locale should not be null", newlocale != null);
+		assertTrue(newlocale + "!=" + locale, newlocale.equals(locale));
 		assertTrue("No redirects here!", response.getRedirectedUrl() == null);
 	}
 

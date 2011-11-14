@@ -38,6 +38,9 @@ import com.github.lrkwz.web.savedrequest.HttpSessionRequestCache;
 public class UrlLocaleChangeInterceptor extends HandlerInterceptorAdapter
 		implements InitializingBean {
 
+	private static final String DEFAULT_LOCALE_ATTRIBUTE_NAME = "locale";
+	private String localeAttributeName = DEFAULT_LOCALE_ATTRIBUTE_NAME;
+
 	Logger logger = LoggerFactory.getLogger(UrlLocaleChangeInterceptor.class);
 
 	private static final Pattern DEFAULT_LOCALE_URL_PATTERN = Pattern
@@ -102,6 +105,7 @@ public class UrlLocaleChangeInterceptor extends HandlerInterceptorAdapter
 			}
 		} else {
 			logger.debug("Locale has not been changed");
+			localeResolver.resolveLocale(request);
 		}
 
 		SavedRequest savedRequest = requestCache.getRequest(request, response);
@@ -109,9 +113,7 @@ public class UrlLocaleChangeInterceptor extends HandlerInterceptorAdapter
 			requestCache.removeRequest(request, response);
 
 			// Use the DefaultSavedRequest URL
-			String targetUrl = savedRequest.getRedirectUrl(); // TODO verificare
-																// se
-																// è necessario
+			String targetUrl = savedRequest.getRedirectUrl();
 			logger.debug("Redirecting to DefaultSavedRequest Url: " + targetUrl);
 			getRedirectStrategy().sendRedirect(request, response, targetUrl);
 		}
@@ -122,7 +124,6 @@ public class UrlLocaleChangeInterceptor extends HandlerInterceptorAdapter
 			getRedirectStrategy().sendRedirect(request, response,
 					getLocaleChangeURI());
 		}
-		
 
 		// Proceed in any case.
 		return true;
@@ -132,11 +133,18 @@ public class UrlLocaleChangeInterceptor extends HandlerInterceptorAdapter
 	public void postHandle(HttpServletRequest request,
 			HttpServletResponse response, Object handler,
 			ModelAndView modelAndView) throws Exception {
-
-		// if (request.getRequestURI().startsWith(localeChangeURI.getPath())) {
-		// logger.debug("This is the change locale page request: no post-handler processing");
-		// } else {
-		// }
+		super.postHandle(request, response, handler, modelAndView);
+		if (modelAndView != null) {
+			if (modelAndView.getModel() != null) {
+				if (StringUtils.hasText(localeAttributeName)) {
+					logger.info("Current locale has been stored in the model map has attribute named '{}'", localeAttributeName);
+					modelAndView.getModelMap().addAttribute(
+							localeAttributeName,
+							RequestContextUtils.getLocaleResolver(request)
+									.resolveLocale(request));
+				}
+			}
+		}
 	}
 
 	public void setLocalePattern(final String localePattern) {
@@ -178,6 +186,20 @@ public class UrlLocaleChangeInterceptor extends HandlerInterceptorAdapter
 
 	protected RedirectStrategy getRedirectStrategy() {
 		return redirectStrategy;
+	}
+
+	/**
+	 * @return the localeAttributeName
+	 */
+	public String getLocaleAttributeName() {
+		return localeAttributeName;
+	}
+
+	/**
+	 * @param localeAttributeName the localeAttributeName to set
+	 */
+	public void setLocaleAttributeName(String localeAttributeName) {
+		this.localeAttributeName = localeAttributeName;
 	}
 
 }
