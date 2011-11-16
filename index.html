@@ -66,16 +66,20 @@
 				<artifactId>urlmanaged-locale</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 				</dependency>
-				]]></script>
+			]]></script>
 
 
+			<p>Take a look at a <a href="https://github.com/lrkwz/URLManagedLocale-sample">working sample</a> to understand how all this is made up.</p>
+			<p>To integrate this module in your application you can simply drop the interceptor and locale
+			
+			<script type="syntaxhighlighter" class="brush: xml"><![CDATA[
+			<bean class="com.github.lrkwz.web.servlet.handler.i18n.UrlLocaleResolver" id="localeResolver" />
 
-
-
-
-
-
-
+			<mvc:interceptors>
+				<bean class="com.github.lrkwz.web.servlet.handler.i18n.UrlLocaleChangeInterceptor" />
+			</mvc:interceptors>
+			]]></script>
+			
 			<h2>Download</h2>
 			<p>
 			You can download this project in either
