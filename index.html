@@ -53,9 +53,20 @@
 				<span class="small">by <a href="https://github.com/lrkwz">lrkwz</a></span></h1>
 
 			<div class="description">
-				Interceptor and LocaleResolver in order to manage locale directly in the URL. Rationale for this is the pressure from SEO
+				Interceptor and LocaleResolver in order to manage locale directly in the URL. Rationale for this is the pressure from SEO:
+				<blockquote><i>To enhance page ranking we want to submit to the research engines URL containing the language and country for every deployed language/country.</i>
+				</blockquote>
 			</div>
 
+			<h2>How to</h2>
+			Include
+			<script type="syntaxhighlighter" class="brush: xml"><![CDATA[
+			<dependency>
+				<groupId>com.github.lrkwz</groupId>
+				<artifactId>urlmanaged-locale</artifactId>
+				<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+			]]></script>
 
 
 
@@ -63,15 +74,6 @@
 
 
 
-
-
-			<h2>Authors</h2>
-			<p>Luca Orlandi (luca.orlandi@gmail.com)<br/>      </p>
-
-
-
-			<h2>Contact</h2>
-			<p>Luca Orlandi (luca.orlandi@gmail.com)<br/>      </p>
 
 
 			<h2>Download</h2>
@@ -100,5 +102,10 @@
 					var pageTracker = _gat._getTracker("UA-25872251-1");
 					pageTracker._trackPageview();
 				} catch(err) {}</script>"
+				<!-- Finally, to actually run the highlighter, you need to include this JS on your page -->
+		<script type="text/javascript">
+			     SyntaxHighlighter.all()
+			 </script>
+
 		</body>
 	</html>
